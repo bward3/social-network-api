@@ -19,23 +19,29 @@ module.exports = {
   createThought(req, res) {
     Thought.create(req.body)
       .then((thought) => {
-        User.update(
+        console.log(thought.userName);
+        User.findOneAndUpdate(
           { userName: thought.userName },
-          { $push: { thoughts: thought._id } }
-        );
-        res.json(thought);
+          { $addToSet: { thoughts: thought._id } },
+          { new: true }
+        ).then((user) => {
+          !user
+            ? res.status(404).json({ message: "No user with that username." })
+            : res.json(user);
+        });
       })
       .catch((err) => res.status(500).json(err));
   },
 
   deleteThought(req, res) {
-    Thought.delete({
+    Thought.findOneAndDelete({
       _id: req.params.thoughtId,
     })
       .then((thought) => {
         User.update(
           { userName: thought.userName },
-          { $pull: { thoughts: req.params.thoughtId } }
+          { $pull: { thoughts: req.params.thoughtId } },
+          { new: true }
         );
         res.json(thought);
       })
@@ -59,7 +65,8 @@ module.exports = {
   createReaction(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
-      { $push: { reactions: req.body } }
+      { $push: { reactions: req.body } },
+      { new: true }
     )
       .then((thought) => {
         !thought
@@ -83,7 +90,8 @@ module.exports = {
   deleteReaction(req, res) {
     Thought.findOneAndUpdate(
       { _id: req.params.thoughtId },
-      { $pull: { reactions: req.params.reactionId } }
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { new: true }
     )
       .then((thought) =>
         !thought

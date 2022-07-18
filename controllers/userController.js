@@ -70,8 +70,8 @@ module.exports = {
 
   addFriend(req, res) {
     User.update(
-      { _id: userId },
-      { $push: { friends: req.params.friendId } }
+      { _id: req.params.userId },
+      { $addToSet: { friends: req.params.friendId } }
     ).then((q) =>
       !q
         ? res.status(404).json({ message: "No user with that id" })
@@ -81,7 +81,7 @@ module.exports = {
 
   removeFriend(req, res) {
     User.update(
-        { _id: userId },
+        { _id: req.params.userId },
         { $pull: { friends: req.params.friendId } }
       ).then((q) =>
         !q

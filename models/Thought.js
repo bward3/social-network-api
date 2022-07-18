@@ -29,7 +29,7 @@ const getDate = function () {
 const reactionSchema = new Schema({
     reactionId: {
         type: Schema.Types.ObjectID,
-        default: () => new Types.ObjectId()
+        default: Types.ObjectId()
     },
     reactionBody: {
         type: String,
